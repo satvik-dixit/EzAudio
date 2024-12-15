@@ -69,7 +69,7 @@ device = 'cuda' if torch.cuda.is_available() else 'cpu'
  tokenizer, text_encoder, noise_scheduler, params) = load_models(config_name, ckpt_path, controlnet_path, vae_path, device)
 
 
-def generate_audio(text,
+def generate_morphed_conditioned_audio(text, beta,
                    audio_path, surpass_noise,
                    guidance_scale, guidance_rescale, 
                    ddim_steps, eta,
@@ -110,7 +110,7 @@ def generate_audio(text,
                      None, None, condition,
                      tokenizer, text_encoder, 
                      params, noise_scheduler,
-                     text, neg_text=None,
+                     text, beta=beta, neg_text=None,
                      audio_frames=audio_frames, 
                      guidance_scale=guidance_scale, guidance_rescale=guidance_rescale, 
                      ddim_steps=ddim_steps, eta=eta, random_seed=random_seed, 
