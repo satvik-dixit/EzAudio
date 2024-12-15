@@ -28,7 +28,7 @@ def inference(autoencoder, unet, controlnet,
               gt, gt_mask, condition,
               tokenizer, text_encoder,
               params, noise_scheduler,
-              text_raw, neg_text=None,
+              text_raw, beta=0.5, neg_text=None,
               audio_frames=500,
               guidance_scale=3, guidance_rescale=0.0,
               ddim_steps=50, eta=1, random_seed=2024,
@@ -52,6 +52,8 @@ def inference(autoencoder, unet, controlnet,
         text_2, text_mask_2 = text_batch_2.input_ids.to(device), text_batch_2.attention_mask.to(device).bool()
         text_2 = text_encoder(input_ids=text_2, attention_mask=text_mask_2).last_hidden_state
         # Combine the two text embeddings with specified coefficients
+        coef_1 = beta
+        coef_2 = 1 - beta
         text = coef_1 * text_1 + coef_2 * text_2
         text_mask = text_mask_1 | text_mask_2  # Combine the masks logically
         # Process unconditioned text for guidance
