@@ -37,19 +37,29 @@ def inference(autoencoder, unet, controlnet,
               ):
     if neg_text is None:
         neg_text = [""]
+        
     if tokenizer is not None:
-        text_batch = tokenizer(text_raw,
-                               max_length=params['text_encoder']['max_length'],
-                               padding="max_length", truncation=True, return_tensors="pt")
-        text, text_mask = text_batch.input_ids.to(device), text_batch.attention_mask.to(device).bool()
-        text = text_encoder(input_ids=text, attention_mask=text_mask).last_hidden_state
-
+        # Tokenize and encode the first text prompt
+        text_batch_1 = tokenizer(text_raw[0],
+                                max_length=params['text_encoder']['max_length'],
+                                padding="max_length", truncation=True, return_tensors="pt")
+        text_1, text_mask_1 = text_batch_1.input_ids.to(device), text_batch_1.attention_mask.to(device).bool()
+        text_1 = text_encoder(input_ids=text_1, attention_mask=text_mask_1).last_hidden_state
+        # Tokenize and encode the second text prompt
+        text_batch_2 = tokenizer(text_raw[1],
+                                max_length=params['text_encoder']['max_length'],
+                                padding="max_length", truncation=True, return_tensors="pt")
+        text_2, text_mask_2 = text_batch_2.input_ids.to(device), text_batch_2.attention_mask.to(device).bool()
+        text_2 = text_encoder(input_ids=text_2, attention_mask=text_mask_2).last_hidden_state
+        # Combine the two text embeddings with specified coefficients
+        text = coef_1 * text_1 + coef_2 * text_2
+        text_mask = text_mask_1 | text_mask_2  # Combine the masks logically
+        # Process unconditioned text for guidance
         uncond_text_batch = tokenizer(neg_text,
-                                      max_length=params['text_encoder']['max_length'],
-                                      padding="max_length", truncation=True, return_tensors="pt")
+                                    max_length=params['text_encoder']['max_length'],
+                                    padding="max_length", truncation=True, return_tensors="pt")
         uncond_text, uncond_text_mask = uncond_text_batch.input_ids.to(device), uncond_text_batch.attention_mask.to(device).bool()
-        uncond_text = text_encoder(input_ids=uncond_text,
-                                   attention_mask=uncond_text_mask).last_hidden_state
+        uncond_text = text_encoder(input_ids=uncond_text, attention_mask=uncond_text_mask).last_hidden_state
     else:
         text, text_mask = None, None
         guidance_scale = None
