@@ -96,7 +96,7 @@ class EzAudio:
 
         return autoencoder, unet, tokenizer, text_encoder, noise_scheduler, params
 
-    def generate_audio(self, text, length=10,
+    def generate_audio(self, text, beta=0.5, length=10,
                        guidance_scale=5, guidance_rescale=0.75, ddim_steps=100, eta=1,
                        random_seed=None, randomize_seed=False):
         neg_text = None
@@ -115,7 +115,7 @@ class EzAudio:
                          gt, gt_mask,
                          self.tokenizer, self.text_encoder,
                          self.params, self.noise_scheduler,
-                         text, neg_text,
+                         text, beta, neg_text,
                          length,
                          guidance_scale, guidance_rescale,
                          ddim_steps, eta, random_seed,
