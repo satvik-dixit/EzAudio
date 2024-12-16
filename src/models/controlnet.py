@@ -3,7 +3,7 @@ import torch.nn as nn
 
 from .utils.modules import PatchEmbed, TimestepEmbedder
 from .utils.modules import PE_wrapper, RMSNorm
-from .blocks import DiTBlock, JointDiTBlock
+from .blocks import DiTBlock
 from .utils.span_mask import compute_mask_indices
 
 
@@ -195,7 +195,7 @@ class DiTControlNet(nn.Module):
         print(f'context position embedding: {context_pe_method}')
 
         if self.context_fusion == 'joint':
-            Block = JointDiTBlock
+            Block = DiTBlock
         else:
             Block = DiTBlock
 
